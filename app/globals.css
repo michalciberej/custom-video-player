@@ -1,0 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+  height: 100%;
+}
+
+input[type='range'][orient='vertical'] {
+  writing-mode: bt-lr;
+  appearance: slider-vertical;
+}
+
+input[type='range'] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: col-resize;
+}
+
+input[type='range']::-webkit-slider-runnable-track {
+  background: orange;
+  height: 0.5rem;
+}
+
+input[type='range']::-moz-range-track {
+  background: orange;
+  height: 0.5rem;
+}
+
+input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none; /* Override default look */
+  appearance: none;
+  background-color: black;
+  height: 100%;
+  width: 3px;
+}
