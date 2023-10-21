@@ -1,4 +1,4 @@
-# CUSTOME VIDEO PLAYER
+# CUSTOM VIDEO PLAYER
 
 Live demo :
 
@@ -14,7 +14,7 @@ Live demo :
 - Responsive design.
 - Fully customized design and controls.
 - Upload video of mp4 format and up to 5MB size to watch.
-- Use keyboard to control video.
+- Use keyboard to control the video.
 
 ## Development
 
