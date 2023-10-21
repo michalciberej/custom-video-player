@@ -16,6 +16,8 @@ const Video = () => {
       flex-col
       p-2
       mx-4
+      min-w-[10rem]
+      min-h-[10rem]
       rounded-md
       shadow-lg'>
       <div
