@@ -1,37 +1,43 @@
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import Controls from './Controls';
 
 const Video = () => {
-  const containerRef = useRef(null);
+  const [file, setFile] = useState<string>('/video.mp4');
+  const [isModalOpened, setIsModalOpened] = useState(false);
   const videoRef = useRef(null);
 
   return (
     <div
       className='
-    bg-gray-700
+      bg-gray-700
       flex
       flex-col
-      space-y-4
       p-2
+      mx-4
       rounded-md
       shadow-lg'>
       <div
-        ref={videoRef}
         className='
         group
         relative
-        overflow-hidden'>
+        overflow-hidden 
+        rounded-md'>
         <video
+          ref={videoRef}
           width='100%'
           height='100%'
-          src='/video.mp4'
-          loop={false}
-          className='rounded-md'>
+          src={file}
+          loop={false}>
           Your Browser doesnt support video
         </video>
-        <Controls ref={videoRef} />
+        <Controls
+          isModalOpened={isModalOpened}
+          setIsModalOpened={setIsModalOpened}
+          setFile={setFile}
+          ref={videoRef}
+        />
       </div>
     </div>
   );
