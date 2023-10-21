@@ -212,7 +212,6 @@ const Controls = forwardRef(function Controls(
       text-lg
       flex-col
       duration-500
-      space-y-2
       group-hover:translate-y-0
       transition-transform
       `,
