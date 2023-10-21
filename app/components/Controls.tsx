@@ -42,9 +42,11 @@ const Controls = forwardRef(function Controls(
   const { isModalOpened, setIsModalOpened, setFile } = props;
 
   useEffect(() => {
-    const { min, sec } = convertSecsToMins(ref.current.duration);
-    setDurationSec(ref.current.duration);
-    setDuration([min, sec]);
+    if (ref.current.duration) {
+      const { min, sec } = convertSecsToMins(ref.current.duration);
+      setDurationSec(ref.current.duration);
+      setDuration([min, sec]);
+    }
 
     const interval = setInterval(() => {
       const { min, sec } = convertSecsToMins(ref.current.currentTime);
