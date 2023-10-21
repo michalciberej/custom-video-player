@@ -7,32 +7,40 @@ body {
   height: 100%;
 }
 
-input[type='range'][orient='vertical'] {
-  writing-mode: bt-lr;
-  appearance: slider-vertical;
-}
-
 input[type='range'] {
   -webkit-appearance: none;
   appearance: none;
   background: transparent;
   cursor: col-resize;
+  border: none;
 }
 
 input[type='range']::-webkit-slider-runnable-track {
-  background: orange;
-  height: 0.5rem;
+  background: #ffa500;
+  height: 0.4rem;
 }
 
 input[type='range']::-moz-range-track {
-  background: orange;
-  height: 0.5rem;
+  background: #ffa500;
+  height: 0.4rem;
 }
 
 input[type='range']::-webkit-slider-thumb {
-  -webkit-appearance: none; /* Override default look */
+  -webkit-appearance: none;
   appearance: none;
-  background-color: black;
-  height: 100%;
+  background-color: gray;
+  height: 0.4rem;
   width: 3px;
+}
+
+input[type='range']::-moz-range-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  background-color: gray;
+  height: 0.4rem;
+  width: 3px;
+}
+
+input[type='file'] {
+  display: none;
 }
