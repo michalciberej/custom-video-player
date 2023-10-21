@@ -1,6 +1,6 @@
 # CUSTOM VIDEO PLAYER
 
-Live demo :
+[Live demo](https://custom-video-player-weld.vercel.app/)
 
 ## Built with
 
