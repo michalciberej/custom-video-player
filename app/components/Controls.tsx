@@ -8,35 +8,38 @@ import {
   BsFillVolumeUpFill,
   BsFillVolumeMuteFill,
   BsFullscreen,
+  BsCloudUpload,
 } from 'react-icons/bs';
 import ControlButton from './ControlButton';
-import {
-  KeyboardEvent,
-  forwardRef,
-  useCallback,
-  useEffect,
-  useState,
-} from 'react';
+import { forwardRef, useCallback, useEffect, useState } from 'react';
 import clsx from 'clsx';
+import UploadModal from './UploadModal';
+import { SetStateAction } from 'react';
 
-const convertSecsToMins = (sec: number) => {
-  const min = Math.floor(sec / 60);
-  const secRemain = Math.floor(sec % 60);
-  return {
-    min: min,
-    sec: secRemain,
-  };
+const convertSecsToMins = (s: number) => {
+  const min = Math.floor(s / 60);
+  const sec = Math.floor(s % 60);
+  return { min, sec };
 };
 
-const Controls = forwardRef(function Controls(props, ref: any) {
+interface UploadModalProps {
+  isModalOpened: boolean;
+  setIsModalOpened: React.Dispatch<SetStateAction<boolean>>;
+  setFile: React.Dispatch<SetStateAction<string>>;
+}
+
+const Controls = forwardRef(function Controls(
+  props: UploadModalProps,
+  ref: any
+) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [duration, setDuration] = useState([0, 0]);
-  const [durationSec, setDurationSec] = useState();
+  const [durationSec, setDurationSec] = useState(0);
   const [currentTime, setCurrentTime] = useState([0, 0]);
-  const [currentTimeSec, setCurrentTimeSec] = useState();
-
-  console.log(ref.current.children[0]);
+  const [currentTimeSec, setCurrentTimeSec] = useState(0);
+  const [currentVolume, setCurrentVolume] = useState(0.5);
+  const { isModalOpened, setIsModalOpened, setFile } = props;
 
   useEffect(() => {
     const { min, sec } = convertSecsToMins(ref.current.duration);
@@ -47,9 +50,34 @@ const Controls = forwardRef(function Controls(props, ref: any) {
       const { min, sec } = convertSecsToMins(ref.current.currentTime);
       setCurrentTimeSec(ref.current.currentTime);
       setCurrentTime([min, sec]);
+      if (ref.current.currentTime === ref.current.duration) setIsPlaying(false);
     }, 1000);
     return () => clearInterval(interval);
   }, [isPlaying, ref]);
+
+  const handleSound = useCallback(() => {
+    if (isMuted) {
+      ref.current.volume = 1;
+      setCurrentVolume(1);
+      setIsMuted(false);
+    } else {
+      ref.current.volume = 0;
+      setCurrentVolume(0);
+      setIsMuted(true);
+    }
+  }, [ref, isMuted]);
+
+  const handleSoundRange = (e: any) => {
+    const value = e.target.value;
+    ref.current.volume = value;
+    setCurrentVolume(value);
+    if (value == 0) setIsMuted(true);
+    else setIsMuted(false);
+  };
+
+  const handleModal = () => {
+    setIsModalOpened(!isModalOpened);
+  };
 
   const handlePlay = useCallback(() => {
     if (isPlaying) {
@@ -61,18 +89,9 @@ const Controls = forwardRef(function Controls(props, ref: any) {
     }
   }, [ref, isPlaying]);
 
-  const handleSound = useCallback(() => {
-    if (isMuted) {
-      ref.current.volume = 1;
-      setIsMuted(false);
-    } else {
-      ref.current.volume = 0;
-      setIsMuted(true);
-    }
-  }, [ref, isMuted]);
-
   const handleBackward = useCallback(() => {
-    if (ref.current.currentTime - 5 > 0) {
+    const time = ref.current.currentTime;
+    if (time - 5 > 0) {
       const { min, sec } = convertSecsToMins((ref.current.currentTime -= 5));
       setCurrentTimeSec(ref.current.currentTime);
       setCurrentTime([min, sec]);
@@ -84,9 +103,17 @@ const Controls = forwardRef(function Controls(props, ref: any) {
   }, [ref]);
 
   const handleSkipForward = useCallback(() => {
-    const { min, sec } = convertSecsToMins((ref.current.currentTime += 5));
-    setCurrentTimeSec(ref.current.currentTime);
-    setCurrentTime([min, sec]);
+    const time = ref.current.currentTime;
+    if (time + 5 < ref.current.duration) {
+      const { min, sec } = convertSecsToMins((ref.current.currentTime += 5));
+      setCurrentTimeSec(ref.current.currentTime);
+      setCurrentTime([min, sec]);
+    } else {
+      ref.current.currentTime = ref.current.duration;
+      const { min, sec } = convertSecsToMins(ref.current.duration);
+      setCurrentTimeSec(ref.current.duration);
+      setCurrentTime([min, sec]);
+    }
   }, [ref]);
 
   const handleFullscreen = useCallback(() => {
@@ -105,11 +132,11 @@ const Controls = forwardRef(function Controls(props, ref: any) {
 
   const handleKeyPress = useCallback(
     (e: any) => {
-      if (e.keyCode === 32) handlePlay();
-      if (e.keyCode === 37) handleBackward();
-      if (e.keyCode === 39) handleSkipForward();
-      if (e.keyCode === 77) handleSound();
-      if (e.keyCode === 70) handleFullscreen();
+      if (e.key === ' ') handlePlay();
+      if (e.key === 'ArrowLeft') handleBackward();
+      if (e.key === 'ArrowRight') handleSkipForward();
+      if (e.key === 'm') handleSound();
+      if (e.key === 'f') handleFullscreen();
     },
     [
       handleFullscreen,
@@ -131,10 +158,7 @@ const Controls = forwardRef(function Controls(props, ref: any) {
     {
       label: 'skip backward',
       icon: BsSkipBackward,
-      secondLabel: null,
-      secondIcon: null,
       onClick: handleBackward,
-      state: true,
     },
     {
       label: 'pause',
@@ -147,10 +171,7 @@ const Controls = forwardRef(function Controls(props, ref: any) {
     {
       label: 'skip forward',
       icon: BsFastForward,
-      secondLabel: null,
-      secondIcon: null,
       onClick: handleSkipForward,
-      state: true,
     },
     {
       label: 'mute',
@@ -163,83 +184,101 @@ const Controls = forwardRef(function Controls(props, ref: any) {
     {
       label: 'fullscreen',
       icon: BsFullscreen,
-      secondLabel: null,
-      secondIcon: null,
       onClick: handleFullscreen,
-      state: true,
+    },
+    {
+      label: 'upload',
+      icon: BsCloudUpload,
+      onClick: handleModal,
     },
   ];
 
   return (
-    <div
-      className={clsx(
-        `
+    <>
+      <div
+        className={clsx(
+          `
       absolute
       flex
       items-center
       bottom-0
       left-0
-      px-6
+      px-2
       py-2
       bg-gray-900/60
       w-full
       text-lg
       flex-col
       duration-500
-      transition-all
+      space-y-2
+      group-hover:translate-y-0
+      transition-transform
       `,
-        isPlaying &&
-          'group-hover:-translate-y-0 group-hover:opacity-100 translate-y-full'
-      )}>
-      <input
-        type='range'
-        max={durationSec}
-        min={0}
-        defaultValue={0}
-        value={currentTimeSec}
-        onChange={(e) => (ref.current.currentTime = e.target.value)}
-        className='w-full absolute -top-2 left-0'
-      />
-      <div className='w-full flex justify-between items-center'>
-        <div className='flex space-x-4'>
-          {controls.map((obj, index) => {
-            if (index <= 2) {
-              return (
-                <ControlButton
-                  key={index}
-                  label={obj.label}
-                  secondLabel={obj.secondLabel}
-                  icon={obj.icon}
-                  secondIcon={obj.secondIcon}
-                  onClick={obj.onClick}
-                  state={obj.state}
-                />
-              );
-            }
-          })}
-        </div>
-        <div className='flex space-x-4 items-center'>
-          <span>
-            {currentTime[0]}:{currentTime[1]} / {duration[0]}:{duration[1]}
-          </span>
-          {controls.map((obj, index) => {
-            if (index >= 3) {
-              return (
-                <ControlButton
-                  key={index}
-                  label={obj.label}
-                  secondLabel={obj.secondLabel}
-                  icon={obj.icon}
-                  secondIcon={obj.secondIcon}
-                  onClick={obj.onClick}
-                  state={obj.state}
-                />
-              );
-            }
-          })}
+          isPlaying && 'translate-y-full'
+        )}>
+        <input
+          type='range'
+          max={durationSec}
+          min={0}
+          value={currentTimeSec}
+          onChange={(e) => (ref.current.currentTime = e.target.value)}
+          className='w-full absolute -top-2 left-0'
+        />
+        <div className='w-full flex justify-between items-center'>
+          <div className='flex space-x-4 items-center'>
+            {controls.map((obj, index) => {
+              if (index <= 2) {
+                return (
+                  <ControlButton
+                    key={index}
+                    label={obj.label}
+                    secondLabel={obj.secondLabel}
+                    icon={obj.icon}
+                    secondIcon={obj.secondIcon}
+                    onClick={obj.onClick}
+                    state={obj.state}
+                  />
+                );
+              }
+            })}
+            <span className='text-sm md:text-base'>
+              {currentTime[0]}:{currentTime[1]} / {duration[0]}:{duration[1]}
+            </span>
+          </div>
+          <div className='flex space-x-4 items-center'>
+            <input
+              type='range'
+              className='w-10'
+              value={currentVolume}
+              min={0}
+              max={1}
+              step={0.05}
+              onChange={(e) => handleSoundRange(e)}
+            />
+            {controls.map((obj, index) => {
+              if (index >= 3) {
+                return (
+                  <ControlButton
+                    key={index}
+                    label={obj.label}
+                    secondLabel={obj.secondLabel}
+                    icon={obj.icon}
+                    secondIcon={obj.secondIcon}
+                    onClick={obj.onClick}
+                    state={obj.state}
+                  />
+                );
+              }
+            })}
+          </div>
         </div>
       </div>
-    </div>
+      <UploadModal
+        isModalOpened={isModalOpened}
+        setIsModalOpened={setIsModalOpened}
+        setFile={setFile}
+      />
+    </>
   );
 });
 

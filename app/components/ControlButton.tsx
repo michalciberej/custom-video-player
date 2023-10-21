@@ -2,9 +2,9 @@
 
 interface ControlButtonProps {
   label: string;
-  secondLabel: string | null;
+  secondLabel?: string;
   icon: string;
-  secondIcon: string | null;
+  secondIcon?: string;
   onClick: () => void;
   state?: boolean;
 }
@@ -17,21 +17,23 @@ const ControlButton: React.FC<ControlButtonProps> = ({
   onClick,
   state,
 }) => {
-  if (SecondIcon !== null) {
+  if (SecondIcon) {
     return (
       <button
         type='button'
         aria-label={state ? label : secondLabel}
         onClick={onClick}
         className='
-        p-2
+        p-1
+        md:p-2
         bg-slate-700
         shadow-md
         rounded-full
         outline-none
+        text-white
         hover:bg-slate-600
         focus-visible:bg-gray-600
-        transition-all'>
+        transition-colors'>
         {state ? <Icon /> : <SecondIcon />}
       </button>
     );
@@ -42,13 +44,16 @@ const ControlButton: React.FC<ControlButtonProps> = ({
         aria-label={label}
         onClick={onClick}
         className='
-        p-2
+        p-1
+        md:p-2
         bg-slate-700
         shadow-md
         rounded-full
         outline-none
+        text-white
         hover:bg-slate-600
-        focus-visible:bg'>
+        focus-visible:bg
+        transition-colors'>
         <Icon />
       </button>
     );
