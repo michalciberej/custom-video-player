@@ -223,7 +223,7 @@ const Controls = forwardRef(function Controls(
           min={0}
           value={currentTimeSec}
           onChange={(e) => (ref.current.currentTime = e.target.value)}
-          className='w-full absolute -top-2 left-0'
+          className='w-full absolute -top-1 left-0'
         />
         <div className='w-full flex justify-between items-center'>
           <div className='flex space-x-4 items-center'>
