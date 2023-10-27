@@ -28,7 +28,7 @@ or
 SSH - $ git clone git@github.com:michalciberej/custom-video-player.git
 ```
 
-2. Mode to cloned directory.
+2. Move to cloned directory.
 
 ```
 $ cd custom-video-player
